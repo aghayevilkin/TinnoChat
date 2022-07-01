@@ -1,0 +1,1432 @@
+﻿@model VmBase
+@inject UserManager<IdentityUser> UserManager
+@inject SignInManager<IdentityUser> SignInManager
+@inject RoleManager<IdentityRole> RoleManager
+
+
+    <!doctype html>
+    <html lang="en">
+
+    <!-- Mirrored from tinno.laborasyon.com/chat.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 27 Jun 2022 21:01:10 GMT -->
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Tinno - @ViewData["Title"]</title>
+
+        <!-- Favicon -->
+        <link rel="icon" href="~/media/img/favicon.png" type="image/png">
+
+        <!-- Google Nunito font -->
+        <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;400;600;700&amp;display=swap" rel="stylesheet">
+
+        <!-- Themify icons -->
+        <link href="~/icons/themify/themify-icons.css" rel="stylesheet">
+
+        <!-- Material design icons -->
+        <link href="~/icons/materialicons/css/materialdesignicons.min.css" rel="stylesheet">
+
+        <!-- Bundle styles -->
+        <link rel="stylesheet" href="~/vendor/bundle.css">
+
+        <!-- Slick -->
+        <link rel="stylesheet" href="~/vendor/slick/slick-theme.css">
+        <link rel="stylesheet" href="~/vendor/slick/slick.css">
+
+        <!-- Fancybox -->
+        <link rel="stylesheet" href="~/vendor/fancybox/jquery.fancybox.min.css" type="text/css" />
+
+        <!-- Intro js -->
+        <link rel="stylesheet" href="~/vendor/introjs/introjs.css" type="text/css" />
+
+        <!-- App styles -->
+        <link rel="stylesheet" href="~/css/app.min.css">
+        <link rel="stylesheet" href="~/css/site.css">
+
+        <script src="https://kit.fontawesome.com/d58faeafe2.js" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
+        <link href="~/plugin/sweetalert2.min.css" rel="stylesheet" />
+    </head>
+    <body>
+
+        <div class="layout">
+
+            <!-- navigation -->
+            <nav class="navigation">
+                <div class="nav-group">
+                    <ul>
+                        <li class="logo">
+                            <a href="#">
+                                <img src="~/media/img/logo.png" alt="logo">
+                            </a>
+                        </li>
+                        <li class="navigation-action-button dropright" title="New" data-placement="right">
+                            <a href="#" data-intro-js="1" data-toggle="dropdown">
+                                <i class="mdi mdi-plus"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a href="#" class="dropdown-item" data-left-sidebar="friends">Start Chat</a>
+                                <a href="#" class="dropdown-item" data-toggle="modal" data-target="#newGroup">Add Group</a>
+                                <a href="#" class="dropdown-item" data-toggle="modal" data-target="#intiveUsers">Invite users</a>
+                            </div>
+                        </li>
+                        <li>
+                            <a class="active" asp-controller="messenger" asp-action="index" data-toggle="tooltip"
+                               title="Chats" data-placement="right">
+                                <span class="badge badge-warning"></span>
+                                <i data-feather="message-circle"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a data-left-sidebar="friends" href="#" data-toggle="tooltip"
+                               title="Friends" data-placement="right">
+                                <span class="badge badge-danger"></span>
+                                <i data-feather="user"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a data-left-sidebar="favorites" data-toggle="tooltip" title="Favorites" data-placement="right"
+                               href="#">
+                                <i data-feather="star"></i>
+                            </a>
+                        </li>
+                        <li class="brackets">
+                            <a data-left-sidebar="archived" href="#" data-toggle="tooltip"
+                               title="Archived" data-placement="right">
+                                <i data-feather="archive"></i>
+                            </a>
+                        </li>
+                        <li class="d-none d-lg-block" data-toggle="tooltip" title="Settings" data-placement="right">
+                            <a href="#" data-toggle="modal" data-right-sidebar="settings">
+                                <i data-feather="settings"></i>
+                            </a>
+                        </li>
+                        <li data-toggle="tooltip" title="User menu" data-placement="right">
+                            <a href="login.html" data-intro-js="3" data-toggle="dropdown">
+                                <figure class="avatar avatar-sm">
+                                    <img src="~/media/img/avatar9.jpg" class="rounded-circle" alt="image">
+                                </figure>
+                            </a>
+                            <div class="dropdown-menu">
+                                <a href="#" class="dropdown-item" data-toggle="modal" data-target="#editProfile">
+                                    Edit
+                                    profile
+                                </a>
+                                <a href="#" class="dropdown-item" data-right-sidebar="user-profile">Profile</a>
+                                <a href="#" class="dropdown-item" data-toggle="modal" data-target="#settingsModal">Settings</a>
+                                <a href="#" class="dropdown-item d-none d-md-block example-app-tour-start">Start Tour</a>
+                                <div class="dropdown-divider"></div>
+                                <a href="login.html" class="dropdown-item text-danger">Logout</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <!-- ./ navigation -->
+            <!-- Friends left sidebar -->
+            <div id="friends" class="left-sidebar">
+                <div class="left-sidebar-header">
+                    <form>
+                        <h4 class="mb-4">Friends</h4>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <button class="btn" type="button">
+                                    <i class="ti-search"></i>
+                                </button>
+                            </div>
+                            <input type="text" class="form-control" placeholder="Search friends">
+                        </div>
+                    </form>
+                </div>
+                <div class="left-sidebar-content">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <div>
+                                <figure class="avatar mr-3">
+                                    <img src="~/media/img/avatar9.jpg" class="rounded-circle" alt="image">
+                                </figure>
+                            </div>
+                            <div class="users-list-body">
+                                <div>
+                                    <h5>Harrietta Souten</h5>
+                                    <p>Dental Hygienist</p>
+                                </div>
+                                <div class="users-list-action">
+                                    <div class="action-toggle">
+                                        <div class="dropdown">
+                                            <a data-toggle="dropdown" href="#">
+                                                <i class="mdi mdi-dots-horizontal"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a href="#" class="dropdown-item">New chat</a>
+                                                <a href="#" data-right-sidebar="user-profile"
+                                                   class="dropdown-item">Profile</a>
+                                                <div class="dropdown-divider"></div>
+                                                <a href="#" class="dropdown-item text-danger">Block</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div>
+                                <figure class="avatar avatar-state-warning mr-3">
+                                    <span class="avatar-title bg-success rounded-circle">A</span>
+                                </figure>
+                            </div>
+                            <div class="users-list-body">
+                                <div>
+                                    <h5>Aline McShee</h5>
+                                    <p>Marketing Assistant</p>
+                                </div>
+                                <div class="users-list-action">
+                                    <div class="action-toggle">
+                                        <div class="dropdown">
+                                            <a data-toggle="dropdown" href="#">
+                                                <i class="mdi mdi-dots-horizontal"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a href="#" class="dropdown-item">New chat</a>
+                                                <a href="#" data-right-sidebar="user-profile"
+                                                   class="dropdown-item">Profile</a>
+                                                <div class="dropdown-divider"></div>
+                                                <a href="#" class="dropdown-item text-danger">Block</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div>
+                                <figure class="avatar avatar-state-success mr-3">
+                                    <img src="~/media/img/avatar6.jpg" class="rounded-circle" alt="image">
+                                </figure>
+                            </div>
+                            <div class="users-list-body">
+                                <div>
+                                    <h5>Brietta Blogg</h5>
+                                    <p>Actuary</p>
+                                </div>
+                                <div class="users-list-action">
+                                    <div class="action-toggle">
+                                        <div class="dropdown">
+                                            <a data-toggle="dropdown" href="#">
+                                                <i class="mdi mdi-dots-horizontal"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a href="#" class="dropdown-item">New chat</a>
+                                                <a href="#" data-right-sidebar="user-profile"
+                                                   class="dropdown-item">Profile</a>
+                                                <div class="dropdown-divider"></div>
+                                                <a href="#" class="dropdown-item text-danger">Block</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div>
+                                <figure class="avatar avatar-state-success mr-3">
+                                    <img src="~/media/img/avatar3.jpg" class="rounded-circle" alt="image">
+                                </figure>
+                            </div>
+                            <div class="users-list-body">
+                                <div>
+                                    <h5>Karl Hubane</h5>
+                                    <p>Chemical Engineer</p>
+                                </div>
+                                <div class="users-list-action">
+                                    <div class="action-toggle">
+                                        <div class="dropdown">
+                                            <a data-toggle="dropdown" href="#">
+                                                <i class="mdi mdi-dots-horizontal"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a href="#" class="dropdown-item">New chat</a>
+                                                <a href="#" data-right-sidebar="user-profile"
+                                                   class="dropdown-item">Profile</a>
+                                                <div class="dropdown-divider"></div>
+                                                <a href="#" class="dropdown-item text-danger">Block</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div>
+                                <figure class="avatar mr-3">
+                                    <img src="~/media/img/avatar2.jpg" class="rounded-circle" alt="image">
+                                </figure>
+                            </div>
+                            <div class="users-list-body">
+                                <div>
+                                    <h5>Jillana Tows</h5>
+                                    <p>Project Manager</p>
+                                </div>
+                                <div class="users-list-action">
+                                    <div class="action-toggle">
+                                        <div class="dropdown">
+                                            <a data-toggle="dropdown" href="#">
+                                                <i class="mdi mdi-dots-horizontal"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a href="#" class="dropdown-item">New chat</a>
+                                                <a href="#" data-right-sidebar="user-profile"
+                                                   class="dropdown-item">Profile</a>
+                                                <div class="dropdown-divider"></div>
+                                                <a href="#" class="dropdown-item text-danger">Block</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div>
+                                <figure class="avatar avatar-state-success mr-3">
+                                    <span class="avatar-title bg-info rounded-circle">AD</span>
+                                </figure>
+                            </div>
+                            <div class="users-list-body">
+                                <div>
+                                    <h5>Alina Derington</h5>
+                                    <p>Nurse</p>
+                                </div>
+                                <div class="users-list-action">
+                                    <div class="action-toggle">
+                                        <div class="dropdown">
+                                            <a data-toggle="dropdown" href="#">
+                                                <i class="mdi mdi-dots-horizontal"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a href="#" class="dropdown-item">New chat</a>
+                                                <a href="#" data-right-sidebar="user-profile"
+                                                   class="dropdown-item">Profile</a>
+                                                <div class="dropdown-divider"></div>
+                                                <a href="#" class="dropdown-item text-danger">Block</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div>
+                                <figure class="avatar avatar-state-secondary mr-3">
+                                    <span class="avatar-title bg-warning rounded-circle">S</span>
+                                </figure>
+                            </div>
+                            <div class="users-list-body">
+                                <div>
+                                    <h5>Stevy Kermeen</h5>
+                                    <p>Associate Professor</p>
+                                </div>
+                                <div class="users-list-action">
+                                    <div class="action-toggle">
+                                        <div class="dropdown">
+                                            <a data-toggle="dropdown" href="#">
+                                                <i class="mdi mdi-dots-horizontal"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a href="#" class="dropdown-item">New chat</a>
+                                                <a href="#" data-right-sidebar="user-profile"
+                                                   class="dropdown-item">Profile</a>
+                                                <div class="dropdown-divider"></div>
+                                                <a href="#" class="dropdown-item text-danger">Block</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div>
+                                <figure class="avatar mr-3">
+                                    <img src="~/media/img/avatar1.jpg" class="rounded-circle" alt="image">
+                                </figure>
+                            </div>
+                            <div class="users-list-body">
+                                <div>
+                                    <h5>Stevy Kermeen</h5>
+                                    <p>Senior Quality Engineer</p>
+                                </div>
+                                <div class="users-list-action">
+                                    <div class="action-toggle">
+                                        <div class="dropdown">
+                                            <a data-toggle="dropdown" href="#">
+                                                <i class="mdi mdi-dots-horizontal"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a href="#" class="dropdown-item">New chat</a>
+                                                <a href="#" data-right-sidebar="user-profile"
+                                                   class="dropdown-item">Profile</a>
+                                                <div class="dropdown-divider"></div>
+                                                <a href="#" class="dropdown-item text-danger">Block</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div>
+                                <figure class="avatar mr-3">
+                                    <img src="~/media/img/avatar5.jpg" class="rounded-circle" alt="image">
+                                </figure>
+                            </div>
+                            <div class="users-list-body">
+                                <div>
+                                    <h5>Gloriane Shimmans</h5>
+                                    <p>Web Designer</p>
+                                </div>
+                                <div class="users-list-action">
+                                    <div class="action-toggle">
+                                        <div class="dropdown">
+                                            <a data-toggle="dropdown" href="#">
+                                                <i class="mdi mdi-dots-horizontal"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a href="#" class="dropdown-item">New chat</a>
+                                                <a href="#" data-right-sidebar="user-profile"
+                                                   class="dropdown-item">Profile</a>
+                                                <div class="dropdown-divider"></div>
+                                                <a href="#" class="dropdown-item text-danger">Block</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div>
+                                <figure class="avatar avatar-state-warning mr-3">
+                                    <span class="avatar-title bg-secondary rounded-circle">B</span>
+                                </figure>
+                            </div>
+                            <div class="users-list-body">
+                                <div>
+                                    <h5>Bernhard Perrett</h5>
+                                    <p>Software Engineer</p>
+                                </div>
+                                <div class="users-list-action">
+                                    <div class="action-toggle">
+                                        <div class="dropdown">
+                                            <a data-toggle="dropdown" href="#">
+                                                <i class="mdi mdi-dots-horizontal"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a href="#" class="dropdown-item">New chat</a>
+                                                <a href="#" data-right-sidebar="user-profile"
+                                                   class="dropdown-item">Profile</a>
+                                                <div class="dropdown-divider"></div>
+                                                <a href="#" class="dropdown-item text-danger">Block</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- ./ Friends left sidebar -->
+            <!-- Favorites left sidebar -->
+            <div id="favorites" class="left-sidebar">
+                <div class="left-sidebar-header">
+                    <form>
+                        <h4 class="mb-4">Favorites</h4>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <button class="btn" type="button">
+                                    <i class="ti-search"></i>
+                                </button>
+                            </div>
+                            <input type="text" class="form-control" placeholder="Search favorites">
+                        </div>
+                    </form>
+                </div>
+                <div class="left-sidebar-content">
+                    <ul class="list-group list-group-flush users-list">
+                        <li class="list-group-item">
+                            <div class="users-list-body">
+                                <div>
+                                    <h5>Jennica Kindred</h5>
+                                    <p>I know how important this file is to you. You can trust me ;)</p>
+                                </div>
+                                <div class="users-list-action">
+                                    <div class="action-toggle">
+                                        <div class="dropdown">
+                                            <a data-toggle="dropdown" href="#">
+                                                <i class="mdi mdi-dots-horizontal"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a href="#" class="dropdown-item">Open</a>
+                                                <a href="#" class="dropdown-item">Remove favorites</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div class="users-list-body">
+                                <div>
+                                    <h5>Marvin Rohan</h5>
+                                    <p>Lorem ipsum dolor sitsdc sdcsdc sdcsdcs</p>
+                                </div>
+                                <div class="users-list-action">
+                                    <div class="action-toggle">
+                                        <div class="dropdown">
+                                            <a data-toggle="dropdown" href="#">
+                                                <i class="mdi mdi-dots-horizontal"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a href="#" class="dropdown-item">Open</a>
+                                                <a href="#" class="dropdown-item">Remove favorites</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div class="users-list-body">
+                                <div>
+                                    <h5>Frans Hanscombe</h5>
+                                    <p>Lorem ipsum dolor sitsdc sdcsdc sdcsdcs</p>
+                                </div>
+                                <div class="users-list-action">
+                                    <div class="action-toggle">
+                                        <div class="dropdown">
+                                            <a data-toggle="dropdown" href="#">
+                                                <i class="mdi mdi-dots-horizontal"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a href="#" class="dropdown-item">Open</a>
+                                                <a href="#" class="dropdown-item">Remove favorites</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div class="users-list-body">
+                                <div>
+                                    <h5>Karl Hubane</h5>
+                                    <p>Lorem ipsum dolor sitsdc sdcsdc sdcsdcs</p>
+                                </div>
+                                <div class="users-list-action">
+                                    <div class="action-toggle">
+                                        <div class="dropdown">
+                                            <a data-toggle="dropdown" href="#">
+                                                <i class="mdi mdi-dots-horizontal"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a href="#" class="dropdown-item">Open</a>
+                                                <a href="#" class="dropdown-item">Remove favorites</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- ./ Favorites left sidebar -->
+            <!-- Archived left sidebar -->
+            <div id="archived" class="left-sidebar">
+                <div class="left-sidebar-header">
+                    <form>
+                        <h4 class="mb-4">Archived</h4>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <button class="btn" type="button">
+                                    <i class="ti-search"></i>
+                                </button>
+                            </div>
+                            <input type="text" class="form-control" placeholder="Search archived">
+                        </div>
+                    </form>
+                </div>
+                <div class="left-sidebar-content">
+                    <ul class="list-group list-group-flush users-list">
+                        <li class="list-group-item">
+                            <figure class="avatar mr-3">
+                                <span class="avatar-title bg-danger rounded-circle">M</span>
+                            </figure>
+                            <div class="users-list-body">
+                                <div>
+                                    <h5>Mercedes Pllu</h5>
+                                    <p>I know how important this file is to you. You can trust me ;)</p>
+                                </div>
+                                <div class="users-list-action">
+                                    <div class="action-toggle">
+                                        <div class="dropdown">
+                                            <a data-toggle="dropdown" href="#">
+                                                <i class="mdi mdi-dots-horizontal"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a href="#" class="dropdown-item">Open</a>
+                                                <a href="#" class="dropdown-item">Restore</a>
+                                                <div class="dropdown-divider"></div>
+                                                <a href="#" class="dropdown-item text-danger">Delete</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <figure class="avatar mr-3">
+                                <span class="avatar-title bg-secondary rounded-circle">R</span>
+                            </figure>
+                            <div class="users-list-body">
+                                <div>
+                                    <h5>Rochelle Golley</h5>
+                                    <p>Lorem ipsum dolor sitsdc sdcsdc sdcsdcs</p>
+                                </div>
+                                <div class="users-list-action">
+                                    <div class="action-toggle">
+                                        <div class="dropdown">
+                                            <a data-toggle="dropdown" href="#">
+                                                <i class="mdi mdi-dots-horizontal"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a href="#" class="dropdown-item">Open</a>
+                                                <a href="#" class="dropdown-item">Restore</a>
+                                                <div class="dropdown-divider"></div>
+                                                <a href="#" class="dropdown-item text-danger">Delete</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- ./ Archived left sidebar -->
+
+            @RenderBody()
+
+        </div>
+
+
+
+        <!-- Notifications -->
+        <div class="right-sidebar" id="notifications">
+            <div class="right-sidebar-header">
+                <span class="right-sidebar-title">Notifications</span>
+                <a data-right-sidebar="settings" title="Settings" href="#">
+                    <i class="mdi mdi-cog"></i>
+                </a>
+                <a href="#" class="right-sidebar-close">
+                    <i class="mdi mdi-close"></i>
+                </a>
+            </div>
+            <div class="right-sidebar-content">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item py-3 px-0 d-flex justify-content-between">
+                        <div class="d-flex">
+                            <figure class="avatar avatar-state-warning mr-3">
+                                <span class="avatar-title bg-info-bright text-info rounded-circle">
+                                    <i class="mdi mdi-server"></i>
+                                </span>
+                            </figure>
+                            <div>
+                                <div>You joined a group</div>
+                                <span class="text-muted small">
+                                    <i class="mdi mdi-clock-outline small mr-1"></i> Today
+                                </span>
+                            </div>
+                        </div>
+                        <div class="dropdown">
+                            <a href="#" data-toggle="dropdown">
+                                <i class="mdi mdi-dots-horizontal"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a href="#" class="dropdown-item">Unread</a>
+                                <a href="#" class="dropdown-item">Detail</a>
+                                <a href="#" class="dropdown-item">Delete</a>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item py-3 px-0 d-flex justify-content-between">
+                        <div class="d-flex">
+                            <figure class="avatar avatar-state-warning mr-3">
+                                <span class="avatar-title bg-warning-bright text-warning rounded-circle">
+                                    <i class="mdi mdi-server"></i>
+                                </span>
+                            </figure>
+                            <div>
+                                <div>Storage is running low!</div>
+                                <span class="text-muted small">
+                                    <i class="mdi mdi-clock-outline small mr-1"></i> Today
+                                </span>
+                            </div>
+                        </div>
+                        <div class="dropdown">
+                            <a href="#" data-toggle="dropdown">
+                                <i class="mdi mdi-dots-horizontal"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a href="#" class="dropdown-item">Unread</a>
+                                <a href="#" class="dropdown-item">Detail</a>
+                                <a href="#" class="dropdown-item">Delete</a>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item py-3 px-0 d-flex justify-content-between">
+                        <div class="d-flex">
+                            <figure class="avatar mr-3">
+                                <span class="avatar-title bg-secondary-bright text-secondary rounded-circle">
+                                    <i class="mdi mdi-file-document-outline"></i>
+                                </span>
+                            </figure>
+                            <div>
+                                <div>1 person sent a file</div>
+                                <span class="text-muted small">
+                                    <i class="mdi mdi-clock-outline small mr-1"></i> 50 min ago
+                                </span>
+                            </div>
+                        </div>
+                        <div class="dropdown">
+                            <a href="#" data-toggle="dropdown">
+                                <i class="mdi mdi-dots-horizontal"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a href="#" class="dropdown-item">Unread</a>
+                                <a href="#" class="dropdown-item">Detail</a>
+                                <a href="#" class="dropdown-item">Delete</a>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item py-3 px-0 d-flex justify-content-between">
+                        <div class="d-flex">
+                            <figure class="avatar mr-3">
+                                <span class="avatar-title bg-success-bright text-success rounded-circle">
+                                    <i class="mdi mdi-download"></i>
+                                </span>
+                            </figure>
+                            <div>
+                                <div>Reports ready to download</div>
+                                <span class="text-muted small">
+                                    <i class="mdi mdi-clock-outline small mr-1"></i> 5 hour ago
+                                </span>
+                            </div>
+                        </div>
+                        <div class="dropdown">
+                            <a href="#" data-toggle="dropdown">
+                                <i class="mdi mdi-dots-horizontal"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a href="#" class="dropdown-item">Unread</a>
+                                <a href="#" class="dropdown-item">Detail</a>
+                                <a href="#" class="dropdown-item">Delete</a>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item py-3 px-0 d-flex justify-content-between">
+                        <div class="d-flex">
+                            <figure class="avatar mr-3">
+                                <span class="avatar-title bg-info-bright text-info rounded-circle">
+                                    <i class="mdi mdi-lock"></i>
+                                </span>
+                            </figure>
+                            <div>
+                                <div>2 steps verification</div>
+                                <span class="text-muted small">
+                                    <i class="mdi mdi-clock-outline small mr-1"></i> Yesterday
+                                </span>
+                            </div>
+                        </div>
+                        <div class="dropdown">
+                            <a href="#" data-toggle="dropdown">
+                                <i class="mdi mdi-dots-horizontal"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a href="#" class="dropdown-item">Unread</a>
+                                <a href="#" class="dropdown-item">Detail</a>
+                                <a href="#" class="dropdown-item">Delete</a>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- ./ Notifications -->
+        <!-- User profile -->
+        <div class="right-sidebar" id="user-profile">
+            <div class="right-sidebar-header with-tab-menu">
+                <ul class="nav nav-tabs justify-content-center" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab"
+                           aria-controls="home" aria-selected="true">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab"
+                           aria-controls="profile" aria-selected="false">Media</a>
+                    </li>
+                </ul>
+                <a href="#" class="right-sidebar-close">
+                    <i class="mdi mdi-window-close"></i>
+                </a>
+            </div>
+            <div class="right-sidebar-content">
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                        <div class="text-center mb-4">
+                            <figure class="avatar avatar-xl mb-4">
+                                <img src="~/media/img/avatar9.jpg" class="rounded-circle" alt="image">
+                            </figure>
+                            <h5 class="mb-1">Matteo Reedy</h5>
+                            <small class="text-muted font-italic">Last seen: Today</small>
+                        </div>
+                        <p class="text-muted">
+                            Lorem ipsum is a pseudo-Latin text used in web design, typography,
+                            layout, and printing in place of English to emphasise design elements over content.
+                            It's also called placeholder (or filler) text. It's a convenient tool for
+                            mock-ups.
+                        </p>
+                        <div class="mt-4 mb-4">
+                            <h6>Phone</h6>
+                            <p class="text-muted">(555) 555 55 55</p>
+                        </div>
+                        <div class="mt-4 mb-4">
+                            <h6>City</h6>
+                            <p class="text-muted">Germany / Berlin</p>
+                        </div>
+                        <div class="mt-4 mb-4">
+                            <h6>Website</h6>
+                            <p>
+                                <a href="#">www.franshanscombe.com</a>
+                            </p>
+                        </div>
+                        <div class="mt-4 mb-4">
+                            <h6 class="mb-3">Social media accounts</h6>
+                            <ul class="list-inline social-links">
+                                <li class="list-inline-item">
+                                    <a href="#" class="btn btn-floating btn-facebook"
+                                       data-toggle="tooltip" title="Facebook">
+                                        <i class="mdi mdi-facebook"></i>
+                                    </a>
+                                </li>
+                                <li class="list-inline-item">
+                                    <a href="#" class="btn btn-floating btn-twitter"
+                                       data-toggle="tooltip" title="Twitter">
+                                        <i class="mdi mdi-twitter"></i>
+                                    </a>
+                                </li>
+                                <li class="list-inline-item">
+                                    <a href="#" class="btn btn-floating btn-instagram"
+                                       data-toggle="tooltip" title="Instagram">
+                                        <i class="mdi mdi-instagram"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="mt-4 mb-4">
+                            <h6 class="mb-3">Settings</h6>
+                            <div class="form-group">
+                                <div class="form-item custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="customSwitch11">
+                                    <label class="custom-control-label" for="customSwitch11">Block</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-item custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" checked=""
+                                           id="customSwitch12">
+                                    <label class="custom-control-label" for="customSwitch12">Mute</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-item custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="customSwitch13">
+                                    <label class="custom-control-label" for="customSwitch13">
+                                        Get
+                                        notification
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                        <div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item py-3 px-0 d-flex justify-content-between">
+                                    <div>
+                                        <figure class="avatar avatar-sm mr-2">
+                                            <span class="avatar-title bg-danger rounded-circle">
+                                                <i class="mdi mdi-file-pdf-box-outline"></i>
+                                            </span>
+                                        </figure>
+                                        report4221.pdf
+                                    </div>
+                                    <div class="dropdown">
+                                        <a href="#" data-toggle="dropdown">
+                                            <i class="mdi mdi-dots-horizontal"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right">
+                                            <a href="#" class="dropdown-item">Forward</a>
+                                            <a href="#" class="dropdown-item">Download</a>
+                                            <a href="#" class="dropdown-item">Delete</a>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="list-group-item py-3 px-0 d-flex justify-content-between">
+                                    <div>
+                                        <figure class="avatar avatar-sm mr-2">
+                                            <span class="avatar-title bg-secondary rounded-circle">
+                                                <i class="mdi mdi-image"></i>
+                                            </span>
+                                        </figure>
+                                        avatar_image.png
+                                    </div>
+                                    <div class="dropdown">
+                                        <a href="#" data-toggle="dropdown">
+                                            <i class="mdi mdi-dots-horizontal"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right">
+                                            <a href="#" class="dropdown-item">Forward</a>
+                                            <a href="#" class="dropdown-item">Download</a>
+                                            <a href="#" class="dropdown-item">Delete</a>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="list-group-item py-3 px-0 d-flex justify-content-between">
+                                    <div>
+                                        <figure class="avatar avatar-sm mr-2">
+                                            <span class="avatar-title bg-success rounded-circle">
+                                                <i class="mdi mdi-file-excel-box-outline"></i>
+                                            </span>
+                                        </figure>
+                                        excel_report_file2020.xlsx
+                                    </div>
+                                    <div class="dropdown">
+                                        <a href="#" data-toggle="dropdown">
+                                            <i class="mdi mdi-dots-horizontal"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right">
+                                            <a href="#" class="dropdown-item">Forward</a>
+                                            <a href="#" class="dropdown-item">Download</a>
+                                            <a href="#" class="dropdown-item">Delete</a>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="list-group-item py-3 px-0 d-flex justify-content-between">
+                                    <div>
+                                        <figure class="avatar avatar-sm mr-2">
+                                            <span class="avatar-title bg-info rounded-circle">
+                                                <i class="mdi mdi-file-document-outline"></i>
+                                            </span>
+                                        </figure>
+                                        articles342133.txt
+                                    </div>
+                                    <div class="dropdown">
+                                        <a href="#" data-toggle="dropdown">
+                                            <i class="mdi mdi-dots-horizontal"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right">
+                                            <a href="#" class="dropdown-item">Forward</a>
+                                            <a href="#" class="dropdown-item">Download</a>
+                                            <a href="#" class="dropdown-item">Delete</a>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ./ User profile -->
+        <!-- Settings -->
+        <div class="right-sidebar" id="settings">
+            <div class="right-sidebar-header">
+                <span class="right-sidebar-title">Settings</span>
+                <a href="#" class="right-sidebar-close">
+                    <i class="mdi mdi-window-close"></i>
+                </a>
+            </div>
+            <div class="right-sidebar-content">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item py-3 px-0">
+                        <div class="form-item custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" checked id="customSwitch14">
+                            <label class="custom-control-label" for="customSwitch14">Allow connected contacts</label>
+                        </div>
+                    </li>
+                    <li class="list-group-item py-3 px-0">
+                        <div class="form-item custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" checked id="customSwitch15">
+                            <label class="custom-control-label" for="customSwitch15">Confirm message requests</label>
+                        </div>
+                    </li>
+                    <li class="list-group-item py-3 px-0">
+                        <div class="form-item custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" checked id="customSwitch16">
+                            <label class="custom-control-label" for="customSwitch16">Profile privacy</label>
+                        </div>
+                    </li>
+                    <li class="list-group-item py-3 px-0">
+                        <div class="form-item custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="customSwitch17">
+                            <label class="custom-control-label" for="customSwitch17">Developer mode options</label>
+                        </div>
+                    </li>
+                    <li class="list-group-item py-3 px-0">
+                        <div class="form-item custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" checked id="customSwitch18">
+                            <label class="custom-control-label" for="customSwitch18">
+                                Two-step security
+                                verification
+                            </label>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- ./ Settings -->
+        <!-- add friends modal -->
+        <div class="modal fade" id="intiveUsers" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-zoom" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="mdi mdi-account-plus-outline"></i> Invite users
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <i class="mdi mdi-close"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form class="mb-4">
+                            <div class="form-group">
+                                <label for="invite_emails" class="col-form-label">Email address</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" id="invite_emails" placeholder="Email address">
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-success">
+                                            <i class="mdi mdi-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="invite_topic" class="col-form-label">Invitation topic</label>
+                                <input type="text" class="form-control" id="invite_topic" placeholder="Topic">
+                            </div>
+                        </form>
+                        <div class="d-flex justify-content-between">
+                            <span>Users</span>
+                            <span class="text-muted small">Total 3 users</span>
+                        </div>
+                        <hr>
+                        <div>
+                            <ul class="list-group list-group-unlined">
+                                <li class="list-group-item px-0 d-flex">
+                                    <figure class="avatar mr-3">
+                                        <img src="~/media/img/avatar4.jpg" class="rounded-circle" alt="image">
+                                    </figure>
+                                    <div>
+                                        <div>Amanda Harvey</div>
+                                        <div class="small text-muted">amanda@example.com</div>
+                                    </div>
+                                    <a class="text-danger ml-auto" data-toggle="tooltip" title="Delete" href="#">
+                                        <i class="mdi mdi-delete-outline"></i>
+                                    </a>
+                                </li>
+                                <li class="list-group-item px-0 d-flex">
+                                    <figure class="avatar mr-3">
+                                        <span class="avatar-title bg-info rounded-circle">D</span>
+                                    </figure>
+                                    <div>
+                                        <div>David Harrison</div>
+                                        <div class="small text-muted">david@example.com</div>
+                                    </div>
+                                    <a class="text-danger ml-auto" data-toggle="tooltip" title="Delete" href="#">
+                                        <i class="mdi mdi-delete-outline"></i>
+                                    </a>
+                                </li>
+                                <li class="list-group-item px-0 d-flex">
+                                    <figure class="avatar mr-3">
+                                        <img src="~/media/img/avatar10.jpg" class="rounded-circle" alt="image">
+                                    </figure>
+                                    <div>
+                                        <div>Ella Lauda</div>
+                                        <div class="small text-muted">Markvt@example.com</div>
+                                    </div>
+                                    <a class="text-danger ml-auto" data-toggle="tooltip" title="Delete" href="#">
+                                        <i class="mdi mdi-delete-outline"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ./ add friends modal -->
+        <!-- setting modal -->
+        <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-zoom" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="mdi mdi-cog mr-2"></i> Settings
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <i class="mdi mdi-close"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" data-toggle="tab" href="#account" role="tab" aria-controls="account"
+                                   aria-selected="true">Account</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="tab" href="#notification" role="tab"
+                                   aria-controls="notification" aria-selected="false">Notification</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="tab" href="#contact" role="tab" aria-controls="contact"
+                                   aria-selected="false">Security</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane show active" id="account" role="tabpanel">
+                                <div class="form-item custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" checked id="customSwitch1">
+                                    <label class="custom-control-label" for="customSwitch1">Allow connected contacts</label>
+                                </div>
+                                <div class="form-item custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" checked id="customSwitch2">
+                                    <label class="custom-control-label" for="customSwitch2">Confirm message requests</label>
+                                </div>
+                                <div class="form-item custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" checked id="customSwitch3">
+                                    <label class="custom-control-label" for="customSwitch3">Profile privacy</label>
+                                </div>
+                                <div class="form-item custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="customSwitch4">
+                                    <label class="custom-control-label" for="customSwitch4">Developer mode options</label>
+                                </div>
+                                <div class="form-item custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" checked id="customSwitch5">
+                                    <label class="custom-control-label" for="customSwitch5">
+                                        Two-step security
+                                        verification
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="tab-pane" id="notification" role="tabpanel">
+                                <div class="form-item custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" checked id="customSwitch6">
+                                    <label class="custom-control-label" for="customSwitch6">Allow mobile notifications</label>
+                                </div>
+                                <div class="form-item custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="customSwitch7">
+                                    <label class="custom-control-label" for="customSwitch7">
+                                        Notifications from your
+                                        friends
+                                    </label>
+                                </div>
+                                <div class="form-item custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="customSwitch8">
+                                    <label class="custom-control-label" for="customSwitch8">Send notifications by email</label>
+                                </div>
+                            </div>
+                            <div class="tab-pane" id="contact" role="tabpanel">
+                                <div class="form-item custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="customSwitch9">
+                                    <label class="custom-control-label" for="customSwitch9">
+                                        Suggest changing passwords every
+                                        month.
+                                    </label>
+                                </div>
+                                <div class="form-item custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" checked id="customSwitch10">
+                                    <label class="custom-control-label" for="customSwitch10">
+                                        Let me know about suspicious
+                                        entries to your account
+                                    </label>
+                                </div>
+                                <div class="form-item">
+                                    <p>
+                                        <a class="btn btn-light" data-toggle="collapse" href="#collapseExample" role="button"
+                                           aria-expanded="false"
+                                           aria-controls="collapseExample">
+                                            <i class="mdi mdi-plus mr-2"></i> Security Questions
+                                        </a>
+                                    </p>
+                                    <div class="collapse" id="collapseExample">
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" placeholder="Question 1">
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" placeholder="Answer 1">
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" placeholder="Question 2">
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" placeholder="Answer 2">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ./ setting modal -->
+        <!-- edit profile modal -->
+        <div class="modal fade" id="editProfile" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-zoom" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="mdi mdi-clipboard-edit-outline mr-2"></i> Edit Profile
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <i class="mdi mdi-close"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" data-toggle="tab" href="#personal" role="tab"
+                                   aria-controls="personal" aria-selected="true">Personal</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="tab" href="#about" role="tab" aria-controls="about"
+                                   aria-selected="false">About</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="tab" href="#social-links" role="tab"
+                                   aria-controls="social-links" aria-selected="false">Social Links</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane show active" id="personal" role="tabpanel">
+                                <form>
+                                    <div class="form-group">
+                                        <label for="fullname" class="col-form-label">Fullname</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="fullname">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">
+                                                    <i class="mdi mdi-account-outline"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-form-label">Avatar</label>
+                                        <div class="d-flex align-items-center">
+                                            <div>
+                                                <figure class="avatar mr-3 item-rtl">
+                                                    <img src="~/media/img/avatar4.jpg" class="rounded-circle"
+                                                         alt="image">
+                                                </figure>
+                                            </div>
+                                            <div class="custom-file">
+                                                <input type="file" class="custom-file-input" id="customFile">
+                                                <label class="custom-file-label" for="customFile">Choose file</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="city" class="col-form-label">City</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="city" placeholder="Ex: Columbia">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">
+                                                    <i class="mdi mdi-map-marker-outline"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="phone" class="col-form-label">Phone</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="phone" placeholder="(555) 555 55 55">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">
+                                                    <i class="mdi mdi-phone"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="website" class="col-form-label">Website</label>
+                                        <input type="text" class="form-control" id="website" placeholder="https:///">
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="tab-pane" id="about" role="tabpanel">
+                                <form>
+                                    <div class="form-group">
+                                        <label for="about-text" class="col-form-label">
+                                            Write a few words that describe
+                                            you
+                                        </label>
+                                        <textarea class="form-control" id="about-text"></textarea>
+                                    </div>
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" checked id="customCheck1">
+                                        <label class="custom-control-label" for="customCheck1">View profile</label>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="tab-pane" id="social-links" role="tabpanel">
+                                <form>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Username">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text bg-facebook">
+                                                    <i class="mdi mdi-facebook"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Username">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text bg-twitter">
+                                                    <i class="mdi mdi-twitter"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Username">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text bg-instagram">
+                                                    <i class="mdi mdi-instagram"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Username">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text bg-linkedin">
+                                                    <i class="mdi mdi-linkedin"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Username">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text bg-youtube">
+                                                    <i class="mdi mdi-youtube"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Username">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text bg-google">
+                                                    <i class="mdi mdi-google"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Username">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text bg-whatsapp">
+                                                    <i class="mdi mdi-whatsapp"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ./ edit profile modal -->
+        <!-- Bundle scripts -->
+        <script src="~/vendor/bundle.js"></script>
+
+        <!-- Feather icons -->
+        <script src="~/icons/feather/feather.min.js"></script>
+
+        <!-- Slick -->
+        <script src="~/vendor/slick/slick.min.js"></script>
+
+        <!-- Fancybox -->
+        <script src="~/vendor/fancybox/jquery.fancybox.min.js"></script>
+
+        <!-- Intro js -->
+        <script src="~/vendor/introjs/intro.js"></script>
+
+        <!-- Jquery Stopwatch -->
+        <script src="~/vendor/jquery.stopwatch.js"></script>
+
+        <!-- Sweetalert2 -->
+        <script src="~/vendor/sweetalert2.js"></script>
+
+        <!-- App scripts -->
+        <script src="~/js/app.min.js"></script>
+
+        <!-- Examples -->
+        @*<script src="~/js/examples.min.js"></script>*@
+
+
+        <script src="~/plugin/sweetalert2.min.js"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/jquery.waypoints.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Counter-Up/1.0.0/jquery.counterup.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.js"></script>
+
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://kit.fontawesome.com/6ff3f42b45.js" crossorigin="anonymous"></script>
+        <script src="~/js/signalr/dist/browser/signalr.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+
+        @await Html.PartialAsync("_notificationPartial")
+        @RenderSection("Scripts", required: false)
+
+
+    </body>
+
+    <!-- Mirrored from tinno.laborasyon.com/chat.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 27 Jun 2022 21:01:42 GMT -->
+</html>
